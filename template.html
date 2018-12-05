@@ -1,0 +1,144 @@
+ <html>
+	<head>
+		<style>
+			body { margin: 0; 
+			font-family: "unifont";
+			font: 1em;
+			line-height: 0.8em;
+}
+
+@font-face {
+    font-family: "unifont";
+    src: url(unifont.ttf) format("truetype");
+}
+
+.outer {
+  display: table;
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 1000px;
+  width: 100%;
+  page-break-after: always;
+
+}
+
+.middle {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+
+.ascii {
+  width: 741.6px;
+  margin-left: auto;
+  margin-right: auto;
+  max-height: 900px;
+  overflow: hidden;
+}
+		
+.pattern {
+  position: absolute;
+  visibility: hidden;
+}
+</style>
+<meta charset="utf-8">
+	</head>
+	<body>
+		<div id="outer"></div>
+
+		<script src="wallpaper.js"></script>
+		<script src="jscii.js"></script>
+
+
+<script>
+
+function draw(r, poem) {
+
+patternDiv = document.createElement("div");
+patternDiv.id = "pattern"+r;
+patternDiv.className = "pattern";
+patternDiv.style.height = '250px'
+patternDiv.style.width = '300px'
+
+outerDiv = document.createElement("div");
+outerDiv.id = "outer"+r;
+outerDiv.className = "outer";
+
+middleDiv = document.createElement("div");
+middleDiv.id = "middle"+r;
+middleDiv.className = "middle";
+
+outerDiv.appendChild(middleDiv);
+
+document.body.appendChild(outerDiv);
+document.body.appendChild(patternDiv);
+
+setupTilingPatterns(patternDiv, poem, r)
+
+    var canvas = document.getElementById('patternCanvas'+r);
+	var imgData = new Image();
+    imgData.src = canvas.toDataURL();
+
+
+asciiDiv = document.createElement("div");
+asciiDiv.id = "ascii"+r;
+asciiDiv.className = "ascii";
+
+document.getElementById("middle"+r).appendChild(asciiDiv);
+//document.getElementById("middle").innerHTML = "<br><br>" + document.getElementById("middle").innerHTML  + "<a style=\"page-break-after: always;\">&nbsp;</a>"
+
+function randomUnicodeChar (uniRam){
+	var r =String.fromCharCode(uniRam + Math.floor(Math.random()*200))
+	//var r = Math.random().toString(36).substring(2,3);
+	//console.log(r)
+return r;}
+
+	//var chars = ['#','X','Y','y','x','+','/','_','-','.','`'];
+var chars = [];
+if (Math.random()>0.5){
+uniRam = Math.floor(Math.random()*17535);
+}
+else if (Math.random()>0.3){
+uniRam = Math.floor(Math.random()*3190)+8600;
+}
+else{
+uniRam = Math.floor(Math.random()*750);
+}
+for (x=0; x<7; x++){
+chars[x] = randomUnicodeChar(uniRam);
+}
+
+
+
+	var imgJscii = new Jscii({
+			width: 103,
+			color: false,
+			el: imgData,
+			chars: chars,
+			fn: function(str) {
+			document.getElementById('ascii' +r).innerHTML = str;
+			replacePoem(poem,r)
+			}
+		});
+}
+
+function replacePoem(poem,r){
+	var ascii = document.getElementById('ascii'+r);
+	var asciiString = ascii.innerHTML;
+
+
+	var stop = 0;
+
+	for (x=0; x<poem.length;x++){
+		
+		stop = stop + Math.floor(Math.random()*asciiString.length/poem.length) + 200;
+
+		var asciiEdit = asciiString.substring(0,stop-6) + "   <mark><i>" + poem[x] + "</i></mark>   " + asciiString.substring(stop+poem[x].length)
+		//console.log(asciiEdit);
+		asciiString = asciiEdit;
+	}
+	
+	document.getElementById('ascii'+r).innerHTML = asciiString;
+}
+
